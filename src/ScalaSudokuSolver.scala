@@ -5,14 +5,13 @@ object ScalaSudokuSolver {
   val cols = digits
   val box_r = List("ABC", "DEF", "GHI")
   val box_c = List("123", "456", "789")
-  val squares = cross(rows, digits)
-  val unitlist = cols.toList.map(c => cross(rows, c+"")) :::
-                 rows.toList.map(r => cross(digits, r+""))
+  val squares = stringify(cross, rows, cols).flatten
+  val unitlist = stringify(cross, rows, cols) :::
+                 stringify(crossR, cols, rows)
 
 
-
-  def cross(x:String, y:String):List[String] = stringify(cross(x.toList, y.toList))
-  def cross[A,B](x:List[A], y:List[B]):List[(A,B)] = for (a <- x; b <- y) yield (a,b)
+  def cross[A](xs:List[A], ys:List[A]):List[List[(A, A)]] = ys.map(y => xs.map( x => (x, y) ))
+  def crossR[A](xs:List[A], ys:List[A]):List[List[(A, A)]] = ys.map(y => xs.map( x => (y, x) ))
 
   def main(args: Array[String]) {
     test()
@@ -21,9 +20,11 @@ object ScalaSudokuSolver {
   /*** Some unit tests ***/
   def test() {
     assert( squares.size == 81 )
-//    assert( unitlist.size == 27 )
+    println(unitlist)
+    //    assert( unitlist.size == 27 )
   }
 
   /*** Other helper methods ***/
-  def stringify(ls:List[(Char, Char)]) : List[String] = ls.map( t => t._1 + "" + t._2 )
+  def stringify(fn: (List[Char], List[Char]) => List[List[(Char, Char)]], x:String, y:String) : List[List[String]] =
+    fn(x.toList, y.toList).map( t => t.map( c=> c._1 + "" + c._2 ) )
 }

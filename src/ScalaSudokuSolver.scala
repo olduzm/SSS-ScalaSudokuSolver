@@ -15,14 +15,33 @@ object ScalaSudokuSolver {
   def cross(x:String, y:String):List[String] = cross(x.toList, y.toList)
   def cross[A,B](x:List[A], y:List[B]):List[String] = for (a <- x; b <- y) yield (stringify(a, b))
 
-  def gridValues(grid:String) : Map[String, Char] = {
-    val chars = grid.toSeq
+  def parseGrid(grid:String) = {
+    squares.map((_, digits)).toMap ++ gridValues(grid).filterNot(x => "0.".contains(x._2))
+  }
+
+  def gridValues(grid:String) : Map[String, String] = {
+    val chars = grid.toSeq.map(_ + "")
     assert( chars.size == 81, {println("The puzzle given should have exactly 81 squares")} )
     squares.zip(chars).toMap
   }
 
+  def display(grid:Map[String, String]) {
+    val width = grid.values.map(_.length).max + 1
+    def fmt(n:String) = ("%-" + width + "s").format(n)
+    val paddedValues = grid.values.map(fmt(_))
+    val hyphens = List.fill(width * 3)('-').mkString
+    val line = hyphens + "+" + hyphens + "+" + hyphens
+    println(
+      paddedValues.grouped(9)
+                  .map(_.grouped(3).map(_.mkString).mkString("|"))
+                  .grouped(3).map(_:+line).flatten.mkString("\n")
+    )
+  }
+
   def main(args: Array[String]) {
     test()
+    val grid1 = "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
+    display(parseGrid(grid1))
   }
 
   /*** Some unit tests ***/
